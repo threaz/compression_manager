@@ -1,6 +1,12 @@
 #ifndef OPTION_H
 #define OPTION_H
 
+#include "metadata.h"
+#include "rle.h"
+#include "compression.h"
+
+#include <string.h>
+
 enum options {
     CREATE, ADD, EXTRACT, COMPRESS, ERROR
 };

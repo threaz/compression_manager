@@ -1,20 +1,18 @@
 #include "option.h"
-#include "metadata.h"
-#include "rle.h"
 
-#include <string.h>
-
-static char ar_name_buf[MAX_NAME]; // przechowuje nazwę archiwum
-static char *name_buf[MAX_NAME]; // bufor na nazwy plikow
-static FILE *file_buf[MAX_FILES]; // bufor na otwarte pliki
-static int name_pos; // aktualna pozycja w tym buforze
-static int nfiles; // licznik plików
-static int opt;    // wybrana opcja
-static int compression; // rodzaj kompresji, domyślnie brak = 0
+static char ar_name_buf[MAX_NAME];  // przechowuje nazwę archiwum
+static char *name_buf[MAX_NAME];    // bufor na nazwy plikow
+static FILE *file_buf[MAX_FILES];   // bufor na otwarte pliki
+static int name_pos;                // aktualna pozycja w tym buforze
+static int nfiles;                  // licznik plików
+static int opt;                     // wybrana opcja
+static int compression;             // rodzaj kompresji, domyślnie brak = 0
 
 void analyze_options(int argc, char **argv)
 {
-   int tmp, get_name;
+   int tmp, get_name, get_comp;
+
+   get_comp = 0;
    get_name = 0;
    name_pos = 0;
    nfiles = 0;
@@ -38,12 +36,15 @@ void analyze_options(int argc, char **argv)
             opt = EXTRACT;
             get_name = 1;
             break;
+         case 'x':
+            get_comp = 1;
+            break;
          default:
             fprintf(stderr, "nieznana opcja\n");
             exit(3);
          }
       }
-      else  // nazwa
+      else // nazwa
       {
          if(strlen(argv[i]) + 1 > MAX_NAME)
          {
@@ -51,10 +52,23 @@ void analyze_options(int argc, char **argv)
                     argv[i], MAX_NAME);
             exit(2);
          }
-         if(get_name)
+         if(get_name) // wczytaj nazwe archiwum
          {
             strncpy(ar_name_buf, argv[i], MAX_NAME);
             get_name = 0;
+         }
+         else if(get_comp) // wczytaj typ kompresji
+         {
+            int tmp = atoi(argv[i]);
+            if(tmp != 0 && tmp != 1 && tmp != 2)
+            {
+               fprintf(stderr, "nieznany typ kompresji\n");
+               exit(-3);
+            }
+
+            // ustaw typ kompresji
+            compression = tmp;
+            get_comp = 0;
          }
          else // gromadzi wskazniki do nazw plikow
          {
@@ -84,7 +98,24 @@ int create_arc_with_files(FILE *archive)
       }
       else
       {
+         // zapisz nazwę pliku
          strncpy(Header[pckd_correct].Name, name_buf[i], MAX_NAME);
+
+         FILE *tmp, *tmp1;
+         // skompresuj plik ze względu na zmienną compression
+         if(compress_by_option(fp, &tmp, compression) < 0)
+         {
+            fprintf(stderr, "blad przy kompresji pliku [%s]", name_buf[i]);
+            return -1;
+         }
+
+         // zamień wskaźniki
+         tmp1 = fp;
+         fp = tmp;
+         tmp = tmp1;
+
+         // zamknij niepotrzebny plik, dlaczego nie mogę tego zamknąć?
+         // fclose(tmp);
 
          // znajdź rozmiar tego pliku
          fseek(fp, 0L, SEEK_END);
@@ -271,7 +302,11 @@ int make_action()
          exit(-1);
       }
 
-      create_arc_with_files(archive);
+      if(create_arc_with_files(archive) < 0) // TODO: dodaj dwa przypadki
+      {
+
+      }
+
    }
    else if(opt == ADD)
    {
@@ -295,5 +330,7 @@ int make_action()
 
       extract_files_form_arc(archive);
    }
+
+   fclose(archive);
    return 0;
 }
