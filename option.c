@@ -6,7 +6,7 @@ static FILE *file_buf[MAX_FILES];   // bufor na otwarte pliki
 static int name_pos;                // aktualna pozycja w tym buforze
 static int nfiles;                  // licznik plików
 static int opt;                     // wybrana opcja
-static int compression;             // rodzaj kompresji, domyślnie brak = 0
+static int compression;             // rodzaj kompresji, domyślnie brak (= 0)
 
 void analyze_options(int argc, char **argv)
 {
@@ -101,21 +101,17 @@ int create_arc_with_files(FILE *archive)
          // zapisz nazwę pliku
          strncpy(Header[pckd_correct].Name, name_buf[i], MAX_NAME);
 
-         FILE *tmp, *tmp1;
+         //         FILE *tmp = fp;
+
          // skompresuj plik ze względu na zmienną compression
-         if(compress_by_option(fp, &tmp, compression) < 0)
+         if((fp = compress_by_option(fp, compression, 1)) == NULL)
          {
             fprintf(stderr, "blad przy kompresji pliku [%s]", name_buf[i]);
             return -1;
          }
 
-         // zamień wskaźniki
-         tmp1 = fp;
-         fp = tmp;
-         tmp = tmp1;
-
          // zamknij niepotrzebny plik, dlaczego nie mogę tego zamknąć?
-         // fclose(tmp);
+         //         fclose(tmp);
 
          // znajdź rozmiar tego pliku
          fseek(fp, 0L, SEEK_END);
@@ -247,13 +243,8 @@ int extract_files_form_arc(FILE *archive)
          {
             // przejdz do poczatku pliku w archiwum
             fseek(archive, pos_in_file[j], SEEK_SET);
-            // utworz plik
-            if((fp = fopen(Header[j].Name, "wb")) == NULL)
-            {
-               fprintf(stderr, "blad, przy probie utworzenia pliku [%s]\n",
-                       Header[i].Name);
-               exit(3);
-            }
+
+            FILE *tmp = tmpfile();
 
             // skopiuj plik
             char buffer[2048];
@@ -262,7 +253,7 @@ int extract_files_form_arc(FILE *archive)
             // jeśli plik jest mniejszy/równy buforowi
             if(Header[j].Size <= 2048) {
                fread(buffer, 1, (size_t) Header[j].Size, archive);
-               fwrite(buffer, 1, (size_t) Header[j].Size, fp);
+               fwrite(buffer, 1, (size_t) Header[j].Size, tmp);
             }
             else
             {
@@ -270,18 +261,41 @@ int extract_files_form_arc(FILE *archive)
                {
                   if(Header[j].Size - total > 2048) {
                      fread(buffer, 1, 2048, archive);
-                     fwrite(buffer, 1, 2048, fp);
+                     fwrite(buffer, 1, 2048, tmp);
                      total += 2048;
                   }
                   else {
                      bytes = fread(buffer, 1, (size_t) Header[j].Size - total, archive);
-                     fwrite(buffer, 1, bytes, fp);
+                     fwrite(buffer, 1, bytes, tmp);
                      total += bytes;
                      break;
                   }
                }
             }
+            // ustaw wskaznik na poczatku pliku
+            fseek(tmp, 0L, SEEK_SET);
 
+            // dekompresuj plik ze względu na zmienną compression
+            if((tmp = compress_by_option(tmp, comp, -1)) == NULL)
+            {
+               fprintf(stderr, "blad przy kompresji pliku [%s]", name_buf[i]);
+               return -1;
+            }
+
+            // utwórz plik
+            if((fp = fopen(Header[j].Name, "wb")) == NULL)
+            {
+               fprintf(stderr, "blad, przy probie utworzenia pliku [%s]\n",
+                       Header[i].Name);
+               exit(3);
+            }
+
+            // ustaw wskaznik na poczatku pliku
+            fseek(tmp, 0L, SEEK_SET);
+
+            // kopiuj zdekompresowany plik do właściwego miejsca
+            while((bytes = fread(buffer, 1, sizeof(buffer), tmp)) > 0)
+               fwrite(buffer, 1, bytes, fp);
             fclose(fp);
             succ_extracted++;
          }
@@ -302,9 +316,9 @@ int make_action()
          exit(-1);
       }
 
-      if(create_arc_with_files(archive) < 0) // TODO: dodaj dwa przypadki
+      if(create_arc_with_files(archive) < 0)
       {
-
+         // TODO: dodaj dwa przypadki
       }
 
    }

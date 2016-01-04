@@ -1,6 +1,6 @@
 #include "compression.h"
 
-int compress_by_option(FILE *inFile, FILE **outFile, int option)
+FILE * compress_by_option(FILE *inFile, int option, int direction)
 {
    FILE *fp;
 
@@ -10,14 +10,20 @@ int compress_by_option(FILE *inFile, FILE **outFile, int option)
       if((fp = tmpfile()) == NULL)
       {
          fprintf(stderr, "nie mozna stworzyc pliku tymczasowego\n");
-         return -1;
+         return NULL;
       }
+
+      if(direction == 1) // kompresja
       // do fp zapisz skompresowany plik
-      rle_encode(inFile, fp);
-      *outFile = fp;
+         rle_encode(inFile, fp);
+      else if(direction == -1) // dekompresja
+      {
+         puts("mamam");
+         rle_decode(inFile, fp);
+      }
    }
    else if(option == NONE)
-      *outFile = inFile;
+      return inFile;
 
-   return 0;
+   return fp;
 }

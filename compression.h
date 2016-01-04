@@ -8,6 +8,6 @@ enum comp {
    NONE, RLE, HUFF
 };
 
-int compress_by_option(FILE *inFile, FILE **outFile, int option);
+FILE * compress_by_option(FILE *inFile, int option, int direction);
 
 #endif // COMPRESSION_H
