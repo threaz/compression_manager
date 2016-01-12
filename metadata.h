@@ -3,11 +3,9 @@
 
 #define META_MAX_NAME 1000
 
-struct Metadata {
+typedef struct {
     char Name[META_MAX_NAME];
     unsigned int Size;
-};
-
-typedef struct Metadata Meta;
+} Meta;
 
 #endif // METADATA_H

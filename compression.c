@@ -1,29 +1,46 @@
 #include "compression.h"
 
-FILE * compress_by_option(FILE *inFile, int option, int direction)
+int copy_files(FILE *inFile, FILE *outFile)
 {
-   FILE *fp;
+   size_t total_copied, bytes;
+   char buffer[2048];
 
-   if(option == RLE)
-   {
-      // stworz plik tymczasowy
-      if((fp = tmpfile()) == NULL)
-      {
-         fprintf(stderr, "nie mozna stworzyc pliku tymczasowego\n");
-         return NULL;
-      }
-
-      if(direction == 1) // kompresja
-      // do fp zapisz skompresowany plik
-         rle_encode(inFile, fp);
-      else if(direction == -1) // dekompresja
-      {
-         puts("mamam");
-         rle_decode(inFile, fp);
-      }
+   total_copied = bytes = 0;
+   while((bytes = fread(buffer, 1, sizeof(buffer), inFile)) > 0) {
+      fwrite(buffer, 1, bytes, outFile);
+      total_copied += bytes;
    }
-   else if(option == NONE)
-      return inFile;
 
-   return fp;
+   return total_copied;
 }
+
+int compress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
+{
+   if(inFile == NULL || outFile == NULL)
+      return -1;
+   if(params == NULL)
+      return -2;
+
+   if(params->compression == NONE)
+      return ! copy_files(inFile, outFile);
+   else if(params->compression == RLE)
+      rle_encode(inFile, outFile);
+
+   return 0;
+}
+
+int decompress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
+{
+   if(inFile == NULL || outFile == NULL)
+      return -1;
+   if(params == NULL)
+      return -2;
+
+   if(params->compression == NONE)
+      return ! copy_files(inFile, outFile);
+   else if(params->compression == RLE)
+      rle_decode(inFile, outFile);
+
+   return 0;
+}
+

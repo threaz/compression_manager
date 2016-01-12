@@ -1,7 +1,6 @@
 #ifndef RLE_H
 #define RLE_H
 
-#include <rle.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
