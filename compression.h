@@ -5,6 +5,7 @@
 
 #include "archive.h"
 #include "rle.h"
+#include "huffman.h"
 
 // definiuje używane typy kompresji
 

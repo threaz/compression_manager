@@ -6,21 +6,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "bitfile.h"
 
 #define HUFF_EOF UCHAR_MAX+1
-
-typedef struct bit_buffer
-{
-   unsigned char buffer;
-   int pos;
-} bit_buffer;
+#define INT_BITS (sizeof(int)*8)
 
 typedef struct NODE *pNODE;
 typedef struct NODE
 {
-   int  val;
+   unsigned char  val;
    unsigned long long nelem;
-   unsigned char label;
+   int label;
+   int label_len;
    pNODE left;
    pNODE right;
 } NODE;
@@ -42,13 +39,16 @@ typedef struct QUEUE
 pNODE make_node(char val);
 QUEUE new_queue();
 
-int get_value(qpNODE node);
+int get_nelem(qpNODE node);
 int add_elem(QUEUE *que, pNODE elem);
 int add_elem_with_sort(QUEUE *que, pNODE elem);
 void print_queue(QUEUE *que);
 pNODE remove_elem(QUEUE *que);
 
+pNODE find_char_node(int ch, pNODE *map);
 pNODE create_huffman_tree(unsigned long long *letter_cnt);
+
 void huffman_encode(FILE *inFile, FILE *outFile);
+void huffman_decode(FILE *inFile, FILE *outFile);
 
 #endif // HUFFMAN_H

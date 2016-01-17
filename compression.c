@@ -25,6 +25,8 @@ int compress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
       return ! copy_files(inFile, outFile);
    else if(params->compression == RLE)
       rle_encode(inFile, outFile);
+   else if(params->compression == HUFF)
+      huffman_encode(inFile, outFile);
 
    return 0;
 }
@@ -40,6 +42,8 @@ int decompress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
       return ! copy_files(inFile, outFile);
    else if(params->compression == RLE)
       rle_decode(inFile, outFile);
+   else if(params->compression == HUFF)
+      huffman_decode(inFile, outFile);
 
    return 0;
 }
