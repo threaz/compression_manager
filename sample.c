@@ -1,6 +1,6 @@
-//#include "huffman.h"
-//#include "lz77.h"
-//#include "bitfile.h"
+#include "huffman.h"
+#include "lz77.h"
+#include "bitfile.h"
 
 //int main()
 //{
