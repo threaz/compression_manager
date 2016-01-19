@@ -179,13 +179,13 @@ void label_huffman_tree(pNODE root)
 pNODE create_huffman_tree(unsigned long long *letter_cnt)
 {
    int j;
-   pNODE node_tab[UCHAR_MAX+2];
+   pNODE node_tab[UCHAR_MAX+1];
    QUEUE que = new_queue();
 
-   for(int i = 0; i < UCHAR_MAX+2; ++i)
+   for(int i = 0; i < UCHAR_MAX+1; ++i)
       node_tab[i] = NULL;
 
-   for(j = 0; j < UCHAR_MAX+2; ++j) {
+   for(j = 0; j < UCHAR_MAX+1; ++j) {
 //      printf("%llu %d\n", letter_cnt[j], j);
       if(letter_cnt[j]) // jeśli jakiś znak wystąpił przynajmniej raz
       {
@@ -194,7 +194,6 @@ pNODE create_huffman_tree(unsigned long long *letter_cnt)
          node_tab[j]->nelem = letter_cnt[j];
       }
    }
-   node_tab[UCHAR_MAX+1]->val = HUFF_EOF;
 
    for(int i = 0; i < j; ++i)
       add_elem_with_sort(&que, node_tab[i]);
@@ -227,13 +226,13 @@ pNODE create_huffman_tree(unsigned long long *letter_cnt)
 void write_header(unsigned long long tab[], FILE *outFile)
 {
    int cnt_signs = 0;
-   for(int i = 0; i < UCHAR_MAX+2; ++i)
+   for(int i = 0; i < UCHAR_MAX+1; ++i)
       if(tab[i])
          ++cnt_signs;
 
    // zapisz liczbę znaków
    fwrite(&cnt_signs, sizeof(int), 1, outFile);
-   for(int i = 0; i < UCHAR_MAX+2; ++i)
+   for(int i = 0; i < UCHAR_MAX+1; ++i)
       if(tab[i])
       {
          // zapisz znak
@@ -263,8 +262,8 @@ void map_tree_rek(pNODE node, pNODE *tab)
 
 pNODE *map_tree(pNODE tree)
 {
-   pNODE *table = (pNODE*)malloc((UCHAR_MAX+2)*sizeof(pNODE));
-   for(int i = 0; i < UCHAR_MAX+2; ++i)
+   pNODE *table = (pNODE*)malloc((UCHAR_MAX+1)*sizeof(pNODE));
+   for(int i = 0; i < UCHAR_MAX+1; ++i)
       table[i] = NULL;
 
    map_tree_rek(tree, table);
@@ -273,7 +272,7 @@ pNODE *map_tree(pNODE tree)
 
 void huffman_encode(FILE *inFile, FILE *outFile)
 {
-   unsigned long long letter_cnt[UCHAR_MAX+2]; // ostatnim znakiem będzie EOF
+   unsigned long long letter_cnt[UCHAR_MAX+1]; // ostatnim znakiem będzie EOF
    pNODE hTree, pn;
    pNODE *map;
    int ch;
@@ -282,12 +281,11 @@ void huffman_encode(FILE *inFile, FILE *outFile)
    // skojarz bfp z plikiem outFile
    bit_file_t *bfp = BitFile_make_new(outFile, WRITE);
 
-   for(int i = 0; i < UCHAR_MAX+2; ++i) // zeruj liczniki
+   for(int i = 0; i < UCHAR_MAX+1; ++i) // zeruj liczniki
       letter_cnt[i] = 0;
 
    while((ch = fgetc(inFile)) != EOF) // zlicz znaki
       ++letter_cnt[ch];
-   letter_cnt[UCHAR_MAX+1] = 1; // EOF
 
    // tworzy drzewo Huffmana
    if((hTree = create_huffman_tree(letter_cnt)) == NULL)
@@ -309,20 +307,27 @@ void huffman_encode(FILE *inFile, FILE *outFile)
          perror("nie znaleziono znaku");
          continue;
       }
-      nbits = pn->label_len;
+      if(pn == hTree)
+         nbits = 1;
+      else
+         nbits = pn->label_len;
 
       for(int i = 0; i < nbits; ++i)
          BitFile_write_bit(CHECK_BIT(pn->label, INT_BITS-1-i), bfp);
    }
+
+   // flush
+   BitFile_flush(bfp);
+   return;
 }
 
 void huffman_decode(FILE *inFile, FILE *outFile)
 {
-   unsigned long long letter_cnt[UCHAR_MAX+2], tmp_size; // ostatnim znakiem będzie EOF
+   unsigned long long letter_cnt[UCHAR_MAX+1], tmp_size; // ostatnim znakiem będzie EOF
    pNODE hTree;
    int ch, nlet;
 
-   for(int i = 0; i < UCHAR_MAX+2; ++i) // zeruj liczniki
+   for(int i = 0; i < UCHAR_MAX+1; ++i) // zeruj liczniki
       letter_cnt[i] = 0;
 
    // wczytaj ilość liter
@@ -354,8 +359,10 @@ void huffman_decode(FILE *inFile, FILE *outFile)
 
       if(cur->left == NULL && cur->right == NULL)
       {
-         if(cur->val != HUFF_EOF)
+         if(cur->nelem > 0) {
             fputc(cur->val, outFile);
+            cur->nelem--;
+         }
 
          cur = hTree;
          continue;

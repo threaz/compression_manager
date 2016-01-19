@@ -1,12 +1,9 @@
-#include "huffman.h"
+//#include "huffman.h"
+//#include "lz77.h"
+//#include "bitfile.h"
 
 //int main()
 //{
-//   int k = 0;
-//   k <<= (INT_BITS-1);
-
-//   printf("%d\n", k);
-
 //   QUEUE Que = new_queue();
 
 //   char tab[] = "damian";
@@ -23,9 +20,33 @@
 //   add_elem_with_sort(&Que, tab_node[6]);
 //   print_queue(&Que);
 
-//   FILE *fp = fopen("damian", "rb");
+//   FILE *fp = fopen("Makefile", "rb");
 //   FILE *fp2 = fopen("karola", "wb");
-//   huffman_decode(fp, fp2);
+//   lz77_encode(fp, fp2);
 
+//   FILE *test = fopen("test", "rb");
+//   bit_file_t *bfp;
+
+//   bfp = BitFile_make_new(test, READ);
+
+//   unsigned char ch;
+//   for(int i = 0; i < 3; ++i)
+//   {
+//      BitFile_read_bit(bfp);
+//      ch = BitFile_read_char(bfp);
+//      putchar(ch);
+//   }
+
+//   putchar('\n');
+
+//   BitFile_write_bit(1, bfp);
+//   BitFile_write_char('A', bfp);
+//   BitFile_write_bit(1, bfp);
+//   BitFile_write_char('B', bfp);
+//   BitFile_write_bit(1, bfp);
+//   BitFile_write_char('C', bfp);
+
+//   BitFile_flush(bfp);
+//   //0110 0010
 //   return 0;
 //}
