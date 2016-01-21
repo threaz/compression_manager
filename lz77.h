@@ -6,8 +6,8 @@
 #include <stdbool.h>
 #include "bitfile.h"
 
-#define ENCODED 0
-#define UNCODED 1
+#define ENCODED 1
+#define UNCODED 0
 
 #define START_SIGN ' '
 

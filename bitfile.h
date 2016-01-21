@@ -30,5 +30,6 @@ int BitFile_write_char(unsigned char ch, bit_file_t *bfp);
 int BitFile_read_char(bit_file_t *bfp);
 
 int BitFile_flush(bit_file_t *bfp);
+int BitFile_read_nbits(int nbits, bit_file_t *bfp);
 
 #endif // BITFILE_H

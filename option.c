@@ -62,7 +62,7 @@ int extract_options(int argc, char **argv, option_t *options)
          else if(get_comp) // wczytaj typ kompresji
          {
             int tmp = atoi(argv[i]);
-            if(tmp != 0 && tmp != 1 && tmp != 2)
+            if(tmp != 0 && tmp != 1 && tmp != 2 && tmp != 3)
             {
                fprintf(stderr, "nieznany typ kompresji\n");
                return -1;

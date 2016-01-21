@@ -6,11 +6,12 @@
 #include "archive.h"
 #include "rle.h"
 #include "huffman.h"
+#include "lz77.h"
 
 // definiuje używane typy kompresji
 
 enum comp {
-   NONE, RLE, HUFF
+   NONE, RLE, HUFF, LZ77, LZ78
 };
 
 int copy_files(FILE *inFile, FILE *outFile);
