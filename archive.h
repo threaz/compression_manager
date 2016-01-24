@@ -4,7 +4,7 @@
 #include "rle.h"
 #include <string.h>
 
-#define MAX_NAME 1000
+#define MAX_NAME 100
 #define MAX_FILES 100
 
 typedef struct {

@@ -17,6 +17,7 @@ typedef struct
 } option_t;
 
 option_t init_option();
+void yield_usage();
 int extract_options(int argc, char **argv, option_t *options);
 
 archive_data get_archive_data(option_t options);

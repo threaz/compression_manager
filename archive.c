@@ -13,7 +13,7 @@ int create_arc_with_files(archive arch, archive_data *params)
    {
       if ((fp = fopen(params->buf.name_buf[i], "rb")) == NULL)
       {
-         fprintf(stderr, "nie mozna otworzyć jednego z plikow [%s]\n",
+         fprintf(stderr, "Nie mozna otworzyć jednego z plikow [%s].\n",
                  params->buf.name_buf[i]);
          continue;
       }
@@ -28,7 +28,7 @@ int create_arc_with_files(archive arch, archive_data *params)
          // skompresuj plik ze względu na zmienną compression
          if(compress_with_params(fp, tmp, params))
          {
-            fprintf(stderr, "blad przy kompresji pliku [%s]\n", params->buf.name_buf[i]);
+            fprintf(stderr, "Blad przy kompresji pliku [%s].\n", params->buf.name_buf[i]);
             return -1;
          }
 
@@ -48,7 +48,7 @@ int create_arc_with_files(archive arch, archive_data *params)
 
    if(! pckd_correct)
    {
-      fprintf(stderr, "nie udalo sie spakowac zadnego pliku :( \n");
+      fprintf(stderr, "Nie udalo sie spakowac zadnego pliku :( \n");
       return -1;
    }
 
@@ -76,6 +76,12 @@ int add_files_to_arc(archive arch, archive_data *params)
    FILE *fp, *file_buf[params->nfiles];
    unsigned int already_packed;
 
+   if(params->nfiles <= 0)
+   {
+      fprintf(stderr, "Brak wyspecyfikowanych plikow do dodania.\n");
+      return 1;
+   }
+
    // ile jest zapakowanych
    fread(&already_packed, sizeof(int), 1, arch);
    // rodzaj kompresji
@@ -95,7 +101,7 @@ int add_files_to_arc(archive arch, archive_data *params)
    {
       if ((fp = fopen(params->buf.name_buf[i], "rb")) == NULL)
       {
-         fprintf(stderr, "nie mozna otworzyć jednego z plikow [%s]\n",
+         fprintf(stderr, "Nie mozna otworzyc jednego z plikow [%s]\n",
                  params->buf.name_buf[i]);
          continue;
       }
@@ -173,10 +179,13 @@ int extract_files_form_arc(archive arch, archive_data *params)
    // jezeli nie - wypisz blad na stderr
    for(unsigned int i = 0; i < params->nfiles; ++i)
    {
+      int found = 0;
       for(unsigned int j = 0; j < already_packed; ++j)
          // znaleziono plik o takiej nazwie w archiwum
          if(strcmp(params->buf.name_buf[i], Header[j].Name) == 0)
          {
+            found = 1;
+
             // przejdz do poczatku pliku w archiwum
             fseek(arch, pos_in_file[j], SEEK_SET);
 
@@ -241,6 +250,9 @@ int extract_files_form_arc(archive arch, archive_data *params)
             fclose(tmp1);
             ++succ_extracted;
          }
+      if(! found)
+         fprintf(stderr, "W archiwum nie ma pliku o podanej nazwie [%s].\n",
+                 params->buf.name_buf[i]);
    }
    return succ_extracted;
 }
@@ -252,33 +264,49 @@ int make_action_on_archive(archive arch, action_t *act, archive_data *params)
       // otworz archiwum
       if((arch = fopen(params->ar_name_buf, "wb")) == NULL)
       {
-         fprintf(stderr, "nie mozna utworzyć archiwum %s\n", params->ar_name_buf);
+         fprintf(stderr, "Nie mozna utworzyc archiwum [%s].\n", params->ar_name_buf);
          return -1;
       }
 
-      create_arc_with_files(arch, params);
+      // nie udało się spakować żadnego pliku
+      // usuwamy zbędnie stworzony wcześniej plik archiwum
+      char delCommand[MAX_NAME+4] = "rm ";
+      if(create_arc_with_files(arch, params) <= 0)
+      {
+         system(strcat(delCommand, params->ar_name_buf));
+         return -1;
+      }
    }
    else if(act->action == ADD)
    {
       // otworz archiwum
       if((arch = fopen(params->ar_name_buf, "rb+")) == NULL)
       {
-         fprintf(stderr, "nie mozna utworzyć archiwum %s\n", params->ar_name_buf);
+         fprintf(stderr, "Nie mozna otworzyc archiwum [%s].\n", params->ar_name_buf);
          return -1;
       }
 
-      add_files_to_arc(arch, params);
+      if(add_files_to_arc(arch, params) <= 0)
+      {
+         fprintf(stderr, "Nie udalo sie dodac plikow do archiwum.\n");
+         return -1;
+      }
+
    }
    else if(act->action == EXTRACT)
    {
       // otworz archiwum
       if((arch = fopen(params->ar_name_buf, "rb")) == NULL)
       {
-         fprintf(stderr, "nie mozna utworzyć archiwum %s\n", params->ar_name_buf);
+         fprintf(stderr, "Nie mozna otworzyc archiwum [%s].\n", params->ar_name_buf);
          return -1;
       }
 
-      extract_files_form_arc(arch, params);
+      if(extract_files_form_arc(arch, params) <= 0)
+      {
+         fprintf(stderr, "Nie udalo sie wypakowac plikow z archiwum.\n");
+         return -1;
+      }
    }
    return 0;
 }

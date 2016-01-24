@@ -3,14 +3,14 @@
 int BitFile_flush(bit_file_t *bfp)
 {
    // jeżeli bufor jest pusty, nic nie rób
-   if(bfp->bitLeft == 8)
+   if(bfp->bitLeft == UCHAR_BITS)
       return 1;
 
    // wypisz cały bufor
    fputc(bfp->bitBuffer, bfp->fp);
    // nadaj wartości początkowe licznikom
    bfp->bitBuffer = 0;
-   bfp->bitLeft   = 8;
+   bfp->bitLeft   = UCHAR_BITS;
 
    return 0;
 }
@@ -21,18 +21,17 @@ bit_file_t *BitFile_make_new(FILE *stream, BF_MODE mode)
       return NULL;
 
    bit_file_t *bfp;
-
    if((bfp = (bit_file_t*)malloc(sizeof(bit_file_t))) == NULL)
       return NULL;
 
+   // skojarz bfp z odpowiednim strumieniem danych
    bfp->fp = stream;
-
    if(mode == READ)
-      bfp->bitBuffer = fgetc(bfp->fp);
-   else
-      bfp->bitBuffer = 0;
+      bfp->bitBuffer = fgetc(bfp->fp); // przeczytaj pierwszy znak z wejscia
+   else // WRITE
+      bfp->bitBuffer = 0; // dostajemy czysty bufor
 
-   bfp->bitLeft   = 8;
+   bfp->bitLeft   = UCHAR_BITS;
    bfp->mode      = mode;
 
    return bfp;
@@ -48,7 +47,7 @@ int BitFile_read_bit(bit_file_t *bfp)
       if(ch == EOF)
          return ch;
 
-      bfp->bitLeft = 8;
+      bfp->bitLeft = UCHAR_BITS;
       bfp->bitBuffer = ch;
    }
 
@@ -61,7 +60,7 @@ int BitFile_read_bit(bit_file_t *bfp)
 int BitFile_read_char(bit_file_t *bfp)
 {
    // cały bufor jest zapełniony, zwróć go
-   if(bfp->bitLeft == 8)
+   if(bfp->bitLeft == UCHAR_BITS)
    {
       int ch = bfp->bitBuffer;
       bfp->bitLeft = 0;
@@ -101,7 +100,7 @@ int BitFile_write_bit(int bit, bit_file_t *bfp)
    {
       fputc(bfp->bitBuffer, bfp->fp);
       bfp->bitBuffer = 0;
-      bfp->bitLeft = 8;
+      bfp->bitLeft = UCHAR_BITS;
    }
 
    if(bit) // ustaw bit
@@ -118,10 +117,10 @@ int BitFile_write_char(unsigned char ch, bit_file_t *bfp)
    {
       fputc(bfp->bitBuffer, bfp->fp);
       bfp->bitBuffer = 0;
-      bfp->bitLeft = 8;
+      bfp->bitLeft = UCHAR_BITS;
    }
 
-   if(bfp->bitLeft == 8) // można po prostu wypisać ch
+   if(bfp->bitLeft == UCHAR_BITS) // można po prostu wypisać ch
       fputc(ch, bfp->fp);
    else // w buforze znajduja się już jakieś bity
    {

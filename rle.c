@@ -85,22 +85,3 @@ void rle_decode(FILE *inFile, FILE *outFile)
         fread(&ch, sizeof(char), 1, inFile);
     }
 }
-
-//int main(int argc, char **argv)
-//{
-//    FILE *fp1, *fp2;
-
-//    if(argv[1][1] == 'c')
-//    {
-//        fp1 = fopen(argv[2], "r");
-//        fp2 = fopen(argv[3], "w");
-//        rle_encode(fp1, fp2);
-//    }
-//    else if(argv[1][1] == 'd')
-//    {
-//        fp1 = fopen(argv[2], "r");
-//        fp2 = fopen(argv[3], "w");
-//        rle_decode(fp1, fp2);
-//    }
-//    return 0;
-//}

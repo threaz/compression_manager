@@ -189,7 +189,6 @@ void lz77_decode(FILE *inFile, FILE *outFile)
       }
    }
 
-
    return;
 }
 

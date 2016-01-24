@@ -29,6 +29,8 @@ int compress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
       huffman_encode(inFile, outFile);
    else if(params->compression == LZ77)
       lz77_encode(inFile, outFile);
+   else if(params->compression == LZ78)
+      lz78_encode(inFile, outFile);
 
    return 0;
 }
@@ -48,6 +50,8 @@ int decompress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
       huffman_decode(inFile, outFile);
    else if(params->compression == LZ77)
       lz77_decode(inFile, outFile);
+   else if(params->compression == LZ78)
+      lz78_decode(inFile, outFile);
 
    return 0;
 }

@@ -24,7 +24,6 @@ typedef struct
    unsigned int data_length;
 } match_data_t;
 
-
 void lz77_encode(FILE *inFile, FILE *outFile);
 void lz77_decode(FILE *inFile, FILE *outFile);
 

@@ -42,7 +42,7 @@ int extract_options(int argc, char **argv, option_t *options)
             get_comp = 1;
             break;
          default:
-            fprintf(stderr, "nieznana opcja\n");
+            fprintf(stderr, "Nieznana opcja.\n");
             return -1;
          }
       }
@@ -50,7 +50,7 @@ int extract_options(int argc, char **argv, option_t *options)
       {
          if(strlen(argv[i]) + 1 > MAX_NAME)
          {
-            fprintf(stderr, "wprowadzona nazwa pliku [%s] przekracza maksymalna dozwolona dlugosc [%d]\n",
+            fprintf(stderr, "Wprowadzona nazwa pliku [%s] przekracza maksymalna dozwolona dlugosc [%d]\n",
                     argv[i], MAX_NAME);
             return -1;
          }
@@ -62,9 +62,9 @@ int extract_options(int argc, char **argv, option_t *options)
          else if(get_comp) // wczytaj typ kompresji
          {
             int tmp = atoi(argv[i]);
-            if(tmp != 0 && tmp != 1 && tmp != 2 && tmp != 3)
+            if(tmp != 0 && tmp != 1 && tmp != 2 && tmp != 3 && tmp != 4)
             {
-               fprintf(stderr, "nieznany typ kompresji\n");
+               fprintf(stderr, "Nieznany typ kompresji\n");
                return -1;
             }
 
@@ -78,8 +78,8 @@ int extract_options(int argc, char **argv, option_t *options)
             ++(options->nfiles);
             if(options->nfiles > MAX_FILES)
             {
-               fprintf(stderr, "przekroczono maks. dopuszczalna ilosc plikow"
-                       "\npozostałe nie beda pakowane\n");
+               fprintf(stderr, "Przekroczono maks. dopuszczalna ilosc plikow."
+                       "Pozostałe nie beda pakowane\n");
                break;
             }
          }
@@ -109,3 +109,17 @@ action_t get_archive_action(option_t options)
    return newAct;
 }
 
+void yield_usage()
+{
+   printf("Program do kompresji plikow.\n"
+          "Format wywolania: kompresuj [-cae nazwa_archiwum] [nazwa_pliku ...] (-x rodzaj_kompresji)\n"
+          "-c nazwa_archiwum\n"
+          "\tTworzy archiwum o wskazanej nazwie.\n"
+          "-e nazwa_archiwum\n"
+          "\tWypakowuje plik(i) z archiwum o wskazanej nazwie.\n"
+          "-a nazwa_archiwum\n"
+          "\tDodaje plik(i) do archiwum o wskazanej nazwie.\n"
+          "-x rodzaj_kompresji\n"
+          "\tSpecyfikuje algorytm uzywany do kompresji pliku.\n"
+          "\t0 - brak kompresji(domyslny)\t1 - RLE\n\t2 - Kodowanie Huffmana\t3 - LZ77/LZSS\n\t4 - LZ78\n");
+}

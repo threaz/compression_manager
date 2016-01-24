@@ -1,5 +1,10 @@
 #include "huffman.h"
 
+// IMPLEMENTACJA KOLEJKI
+/**************************************************************************/
+// Abstrakcyjny typ danych potrzebny do przeprowadzenia
+// konwersji Kodowaniem Huffmana
+
 pNODE make_node(char val)
 {
    pNODE pn;
@@ -145,6 +150,9 @@ void print_queue(QUEUE *que)
    }
    putchar('\n');
 }
+
+// KOLEJKA
+/**************************************************************************/
 
 void label_huffman_tree_rec(pNODE root, int path_len, int label, int set)
 {

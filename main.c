@@ -6,11 +6,19 @@
 int main(int argc, char *argv[])
 {
    archive_data data; // miejsce na parametry
-   archive arch; // nowe archiwum
-   action_t act; // akcja, która zostanie wykonana na archiwum
+   archive arch;      // nowe archiwum
+   action_t act;      // akcja, która zostanie wykonana na archiwum
 
    // inicjalizuje początkowe opcje
    option_t options = init_option();
+
+   if(argc <= 1)
+   {
+      // wywołanie programu bez opcji
+      // pokazuje jego poprawne wywołanie
+      yield_usage();
+      return 1;
+   }
 
    // "wyłuskuje" opcje z argv i zapisuje dane w options
    if(extract_options(argc, argv, &options) != 0)
