@@ -1,10 +1,5 @@
 #include "huffman.h"
 
-// IMPLEMENTACJA KOLEJKI
-/**************************************************************************/
-// Abstrakcyjny typ danych potrzebny do przeprowadzenia
-// konwersji Kodowaniem Huffmana
-
 pNODE make_node(char val)
 {
    pNODE pn;
@@ -151,16 +146,17 @@ void print_queue(QUEUE *que)
    putchar('\n');
 }
 
-// KOLEJKA
-/**************************************************************************/
-
 void label_huffman_tree_rec(pNODE root, int path_len, int label, int set)
 {
    root->label = label;
+   // nadaj etykietę węzłowi drzewa
    root->label |= (set << (INT_BITS - path_len - 1));
 
    if(root->left == NULL && root->right == NULL)
    {
+      // aktualizuje ilość bitów użytych w etykiecie
+      // dotyczy tylko liści, ponieważ to one
+      // są poszczególnymi literami
       root->label_len = path_len+1;
       return;
    }
@@ -234,6 +230,7 @@ pNODE create_huffman_tree(unsigned long long *letter_cnt)
 void write_header(unsigned long long tab[], FILE *outFile)
 {
    int cnt_signs = 0;
+   // liczy ile znaków użytych było w pliku
    for(int i = 0; i < UCHAR_MAX+1; ++i)
       if(tab[i])
          ++cnt_signs;

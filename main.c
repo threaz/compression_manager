@@ -14,10 +14,8 @@ int main(int argc, char *argv[])
 
    if(argc <= 1)
    {
-      // wywołanie programu bez opcji
-      // pokazuje jego poprawne wywołanie
-      yield_usage();
-      return 1;
+      fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
+      return -1;
    }
 
    // "wyłuskuje" opcje z argv i zapisuje dane w options

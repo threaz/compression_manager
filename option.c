@@ -14,10 +14,11 @@ option_t init_option()
 
 int extract_options(int argc, char **argv, option_t *options)
 {
-   int tmp, get_name, get_comp;
+   int tmp, get_name, get_comp, was_request;
 
    get_comp = 0;
    get_name = 0;
+   was_request = 0;
 
    for(int i = 1; i < argc; ++i)
    {
@@ -28,26 +29,38 @@ int extract_options(int argc, char **argv, option_t *options)
          {
          case 'c':
             options->action = CREATE;
-            get_name = 1;
+            was_request = 1;
+            get_name    = 1;
             break;
          case 'a':
             options->action = ADD;
-            get_name = 1;
+            was_request = 1;
+            get_name    = 1;
             break;
          case 'e':
             options->action = EXTRACT;
-            get_name = 1;
+            was_request = 1;
+            get_name    = 1;
             break;
          case 'x':
             get_comp = 1;
             break;
+         case 'h':
+            yield_usage();
+            return 1;
          default:
             fprintf(stderr, "Nieznana opcja.\n");
             return -1;
          }
       }
-      else // nazwa
+      else // nazwa lub coś niespodziewanego
       {
+         if(! was_request) // jeżeli nie wyspecyfikowano odpowiedniego trybu [c|e|a]
+         {
+            fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
+            return -1;
+         }
+
          if(strlen(argv[i]) + 1 > MAX_NAME)
          {
             fprintf(stderr, "Wprowadzona nazwa pliku [%s] przekracza maksymalna dozwolona dlugosc [%d]\n",
@@ -111,6 +124,7 @@ action_t get_archive_action(option_t options)
 
 void yield_usage()
 {
+   system("clear");
    printf("Program do kompresji plikow.\n"
           "Format wywolania: kompresuj [-cae nazwa_archiwum] [nazwa_pliku ...] (-x rodzaj_kompresji)\n"
           "-c nazwa_archiwum\n"
@@ -121,5 +135,5 @@ void yield_usage()
           "\tDodaje plik(i) do archiwum o wskazanej nazwie.\n"
           "-x rodzaj_kompresji\n"
           "\tSpecyfikuje algorytm uzywany do kompresji pliku.\n"
-          "\t0 - brak kompresji(domyslny)\t1 - RLE\n\t2 - Kodowanie Huffmana\t3 - LZ77/LZSS\n\t4 - LZ78\n");
+          "\t0 - brak kompresji(domyslny)\t1 - RLE\n\t2 - Kodowanie Huffmana\t3 - LZ77/LZSS\n\t4 - LZ78/LZW\n");
 }

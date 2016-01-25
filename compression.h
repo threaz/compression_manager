@@ -7,6 +7,7 @@
 #include "rle.h"
 #include "huffman.h"
 #include "lz77.h"
+#include "lz78.h"
 
 // definiuje używane typy kompresji
 

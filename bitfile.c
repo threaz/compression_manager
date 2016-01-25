@@ -2,9 +2,12 @@
 
 int BitFile_flush(bit_file_t *bfp)
 {
+   if(bfp == NULL)
+      return -1;
+
    // jeżeli bufor jest pusty, nic nie rób
    if(bfp->bitLeft == UCHAR_BITS)
-      return 1;
+      return 0;
 
    // wypisz cały bufor
    fputc(bfp->bitBuffer, bfp->fp);
@@ -17,7 +20,7 @@ int BitFile_flush(bit_file_t *bfp)
 
 bit_file_t *BitFile_make_new(FILE *stream, BF_MODE mode)
 {
-   if(stream == NULL)
+   if(stream == NULL || (mode != READ && mode != WRITE))
       return NULL;
 
    bit_file_t *bfp;
@@ -39,6 +42,9 @@ bit_file_t *BitFile_make_new(FILE *stream, BF_MODE mode)
 
 int BitFile_read_bit(bit_file_t *bfp)
 {
+   if(bfp == NULL || bfp->mode != READ)
+      return -2;
+   // nie ma już bitów do przeczytania
    if(bfp->bitLeft == 0)
    {
       int ch;
@@ -51,7 +57,9 @@ int BitFile_read_bit(bit_file_t *bfp)
       bfp->bitBuffer = ch;
    }
 
+   // weź pierwszy, który jest dostępny
    int ret = bfp->bitBuffer & (1 << (bfp->bitLeft - 1));
+   // zaktualizuj licznik
    bfp->bitLeft--;
 
    return ret;
@@ -59,6 +67,9 @@ int BitFile_read_bit(bit_file_t *bfp)
 
 int BitFile_read_char(bit_file_t *bfp)
 {
+   if(bfp == NULL || bfp->mode != READ)
+      return -2;
+
    // cały bufor jest zapełniony, zwróć go
    if(bfp->bitLeft == UCHAR_BITS)
    {
@@ -96,6 +107,8 @@ int BitFile_read_char(bit_file_t *bfp)
 
 int BitFile_write_bit(int bit, bit_file_t *bfp)
 {
+   if(bfp == NULL || bfp->mode != WRITE)
+      return -1;
    if(bfp->bitLeft <= 0)
    {
       fputc(bfp->bitBuffer, bfp->fp);
@@ -113,6 +126,9 @@ int BitFile_write_bit(int bit, bit_file_t *bfp)
 
 int BitFile_write_char(unsigned char ch, bit_file_t *bfp)
 {
+   if(bfp == NULL || bfp->mode != WRITE)
+      return -1;
+
    if(bfp->bitLeft == 0) // bufor nadaje się do wypisania
    {
       fputc(bfp->bitBuffer, bfp->fp);
@@ -150,12 +166,16 @@ int BitFile_read_nbits(int nbits, bit_file_t *bfp)
    int ch;
    unsigned char uch, tmp;
 
+   if(bfp == NULL || bfp->mode != READ)
+      return -2;
+
    // bufor jest pusty, dociągamy nowe znaki
    if(bfp->bitLeft == 0)
    {
       ch = fgetc(bfp->fp);
       if(ch == EOF)
-         return 1;
+         return -1;
+
       bfp->bitBuffer = ch;
       bfp->bitLeft   = UCHAR_BITS;
    }
@@ -170,7 +190,7 @@ int BitFile_read_nbits(int nbits, bit_file_t *bfp)
       uch >>= (UCHAR_BITS - nbits);
       // wczytaj kolejne bity
       ch = fgetc(bfp->fp);
-      // koniec pliku, wypisz to, co mamy
+      // koniec pliku, zwróć to, co mamy do tej pory
       if(ch == EOF)
       {
          bfp->bitLeft = 0;
