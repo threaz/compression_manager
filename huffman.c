@@ -1,10 +1,5 @@
 #include "huffman.h"
 
-// IMPLEMENTACJA KOLEJKI
-/**************************************************************************/
-// Abstrakcyjny typ danych potrzebny do przeprowadzenia
-// konwersji Kodowaniem Huffmana
-
 pNODE make_node(char val)
 {
    pNODE pn;
@@ -101,9 +96,9 @@ int add_elem_with_sort(QUEUE *que, pNODE elem)
          }
          else // wstaw element w środek
          {
-            qpNODE prev, next;
+//            qpNODE prev, next;
 
-            prev = act; next = act->next;
+//            prev = act; next = act->next;
             qpn->next = act->next;
             act->next = qpn;
          }
@@ -137,30 +132,17 @@ pNODE remove_elem(QUEUE *que)
    return qpn->elem;
 }
 
-void print_queue(QUEUE *que)
-{
-   if(que == NULL)
-      return;
-
-   qpNODE qpn = que->first;
-   while(qpn)
-   {
-      printf((qpn->next) ? "%c -> " : "%c", qpn->elem->val);
-      qpn = qpn->next;
-   }
-   putchar('\n');
-}
-
-// KOLEJKA
-/**************************************************************************/
-
 void label_huffman_tree_rec(pNODE root, int path_len, int label, int set)
 {
    root->label = label;
+   // nadaj etykietę węzłowi drzewa
    root->label |= (set << (INT_BITS - path_len - 1));
 
    if(root->left == NULL && root->right == NULL)
    {
+      // aktualizuje ilość bitów użytych w etykiecie
+      // dotyczy tylko liści, ponieważ to one
+      // są poszczególnymi literami
       root->label_len = path_len+1;
       return;
    }
@@ -194,7 +176,6 @@ pNODE create_huffman_tree(unsigned long long *letter_cnt)
       node_tab[i] = NULL;
 
    for(j = 0; j < UCHAR_MAX+1; ++j) {
-//      printf("%llu %d\n", letter_cnt[j], j);
       if(letter_cnt[j]) // jeśli jakiś znak wystąpił przynajmniej raz
       {
          node_tab[j] = make_node((char)j);
@@ -234,6 +215,7 @@ pNODE create_huffman_tree(unsigned long long *letter_cnt)
 void write_header(unsigned long long tab[], FILE *outFile)
 {
    int cnt_signs = 0;
+   // liczy ile znaków użytych było w pliku
    for(int i = 0; i < UCHAR_MAX+1; ++i)
       if(tab[i])
          ++cnt_signs;
@@ -309,7 +291,7 @@ void huffman_encode(FILE *inFile, FILE *outFile)
 
    while((ch = fgetc(inFile)) != EOF)
    {
-      pn = find_char_node(ch, map); // TODO: tu jest coś nie tak
+      pn = find_char_node(ch, map);
       if(pn == NULL)
       {
          perror("nie znaleziono znaku");
@@ -320,7 +302,7 @@ void huffman_encode(FILE *inFile, FILE *outFile)
       else
          nbits = pn->label_len;
 
-      for(int i = 0; i < nbits; ++i)
+      for(unsigned int i = 0; i < nbits; ++i)
          BitFile_write_bit(CHECK_BIT(pn->label, INT_BITS-1-i), bfp);
    }
 

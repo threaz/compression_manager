@@ -1,7 +1,7 @@
 #include "lz77.h"
 
-unsigned char dictionary[MAX_DICT];
-unsigned char buffer[MAX_BUF];
+static unsigned char dictionary[MAX_DICT];
+static unsigned char buffer[MAX_BUF];
 
 match_data_t findPattern(unsigned int dict_pos, unsigned int buf_pos)
 {

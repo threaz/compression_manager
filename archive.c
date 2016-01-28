@@ -79,7 +79,7 @@ int add_files_to_arc(archive arch, archive_data *params)
    if(params->nfiles <= 0)
    {
       fprintf(stderr, "Brak wyspecyfikowanych plikow do dodania.\n");
-      return 1;
+      return -1;
    }
 
    // ile jest zapakowanych
@@ -254,6 +254,7 @@ int extract_files_form_arc(archive arch, archive_data *params)
          fprintf(stderr, "W archiwum nie ma pliku o podanej nazwie [%s].\n",
                  params->buf.name_buf[i]);
    }
+
    return succ_extracted;
 }
 

@@ -13,7 +13,6 @@ dict_t *init_dictionary()
    return dp;
 }
 
-// potrzeba zewnetrzenego spawdzenia, czy nie jest pelny
 void add_entry_to_dictionary(entry_t ent, dict_t *dict)
 {
    dict->entry[dict->pos++] = ent;
@@ -29,6 +28,11 @@ bool is_full(dict_t *dict)
    return dict->pos == MAX_DICT_S;
 }
 
+bool is_entry_index(int index, dict_t *dict)
+{
+   return (index < dict->pos);
+}
+
 bool is_entry(entry_t ent, dict_t *dict)
 {
    for(unsigned int i = 0; i < dict->pos; ++i)
@@ -36,11 +40,6 @@ bool is_entry(entry_t ent, dict_t *dict)
             ent.prefixWord == dict->entry[i].prefixWord)
          return true;
    return false;
-}
-
-bool is_entry_index(int index, dict_t *dict)
-{
-   return (index < dict->pos);
 }
 
 int get_entry_index(entry_t ent, dict_t *dict)
@@ -95,7 +94,7 @@ int get_codeword(bit_file_t *bfp)
 
 void decode_entry(entry_t ent, dict_t *dict, FILE *outFile)
 {
-   if(ent.prefixWord == CHAR_ENTRY)
+   if(ent.prefixWord == CHAR_ENTRY )
    {
       // doszliśmy do pierwszej litery
       fputc(ent.codeWord, outFile);
@@ -159,7 +158,7 @@ void lz78_decode(FILE *inFile, FILE *outFile)
    entry_t string, entry, p_ent;
    int code;
 
-   // skojarz bfp z plikiem wyjsciowym
+   // skojarz bfp z plikiem wejściowym
    bit_file_t *bfp = BitFile_make_new(inFile, READ);
 
    // weź pierwszy kod z wejścia

@@ -3,6 +3,7 @@
 option_t init_option()
 {
    option_t newOpt;
+   newOpt.ar_name_buf[0] = '\0';
    newOpt.buf.name_pos = 0;
    newOpt.nfiles = 0;
    newOpt.action = ERROR;
@@ -14,10 +15,17 @@ option_t init_option()
 
 int extract_options(int argc, char **argv, option_t *options)
 {
-   int tmp, get_name, get_comp;
+   int tmp, get_name, get_comp, was_request;
 
    get_comp = 0;
    get_name = 0;
+   was_request = 0;
+
+   if(argc <= 1)
+   {
+      fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
+      return -1;
+   }
 
    for(int i = 1; i < argc; ++i)
    {
@@ -28,25 +36,31 @@ int extract_options(int argc, char **argv, option_t *options)
          {
          case 'c':
             options->action = CREATE;
-            get_name = 1;
+            was_request = 1;
+            get_name    = 1;
             break;
          case 'a':
             options->action = ADD;
-            get_name = 1;
+            was_request = 1;
+            get_name    = 1;
             break;
          case 'e':
             options->action = EXTRACT;
-            get_name = 1;
+            was_request = 1;
+            get_name    = 1;
             break;
          case 'x':
             get_comp = 1;
             break;
+         case 'h':
+            yield_usage();
+            return 1;
          default:
             fprintf(stderr, "Nieznana opcja.\n");
             return -1;
          }
       }
-      else // nazwa
+      else // nazwa lub coś niespodziewanego
       {
          if(strlen(argv[i]) + 1 > MAX_NAME)
          {
@@ -85,6 +99,12 @@ int extract_options(int argc, char **argv, option_t *options)
          }
       }
    }
+
+   if(! was_request || strlen(options->ar_name_buf) <= 0) // jeżeli nie wyspecyfikowano odpowiedniego trybu [c|e|a]
+   {
+      fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
+      return -1;
+   }
    return 0;
 }
 
@@ -121,5 +141,5 @@ void yield_usage()
           "\tDodaje plik(i) do archiwum o wskazanej nazwie.\n"
           "-x rodzaj_kompresji\n"
           "\tSpecyfikuje algorytm uzywany do kompresji pliku.\n"
-          "\t0 - brak kompresji(domyslny)\t1 - RLE\n\t2 - Kodowanie Huffmana\t3 - LZ77/LZSS\n\t4 - LZ78\n");
+          "\t0 - brak kompresji(domyslny)\t1 - RLE\n\t2 - Kodowanie Huffmana\t3 - LZ77/LZSS\n\t4 - LZ78/LZW\n");
 }
