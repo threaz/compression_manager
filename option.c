@@ -131,7 +131,6 @@ action_t get_archive_action(option_t options)
 
 void yield_usage()
 {
-   system("clear");
    printf("Program do kompresji plikow.\n"
           "Format wywolania: kompresuj [-cae nazwa_archiwum] [nazwa_pliku ...] (-x rodzaj_kompresji)\n"
           "-c nazwa_archiwum\n"

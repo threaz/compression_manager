@@ -96,9 +96,9 @@ int add_elem_with_sort(QUEUE *que, pNODE elem)
          }
          else // wstaw element w środek
          {
-            qpNODE prev, next;
+//            qpNODE prev, next;
 
-            prev = act; next = act->next;
+//            prev = act; next = act->next;
             qpn->next = act->next;
             act->next = qpn;
          }
