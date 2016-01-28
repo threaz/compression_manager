@@ -16,13 +16,11 @@ int copy_files(FILE *inFile, FILE *outFile)
 
 int compress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
 {
-   if(inFile == NULL || outFile == NULL)
+   if(inFile == NULL || outFile == NULL || params == NULL)
       return -1;
-   if(params == NULL)
-      return -2;
 
    if(params->compression == NONE)
-      return ! copy_files(inFile, outFile);
+      copy_files(inFile, outFile);
    else if(params->compression == RLE)
       rle_encode(inFile, outFile);
    else if(params->compression == HUFF)
@@ -37,13 +35,11 @@ int compress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
 
 int decompress_with_params(FILE *inFile, FILE *outFile, archive_data *params)
 {
-   if(inFile == NULL || outFile == NULL)
+   if(inFile == NULL || outFile == NULL || params == NULL)
       return -1;
-   if(params == NULL)
-      return -2;
 
    if(params->compression == NONE)
-      return ! copy_files(inFile, outFile);
+      copy_files(inFile, outFile);
    else if(params->compression == RLE)
       rle_decode(inFile, outFile);
    else if(params->compression == HUFF)

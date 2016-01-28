@@ -20,6 +20,12 @@ int extract_options(int argc, char **argv, option_t *options)
    get_name = 0;
    was_request = 0;
 
+   if(argc <= 1)
+   {
+      fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
+      return -1;
+   }
+
    for(int i = 1; i < argc; ++i)
    {
       tmp = argv[i][0];
@@ -55,12 +61,6 @@ int extract_options(int argc, char **argv, option_t *options)
       }
       else // nazwa lub coś niespodziewanego
       {
-         if(! was_request) // jeżeli nie wyspecyfikowano odpowiedniego trybu [c|e|a]
-         {
-            fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
-            return -1;
-         }
-
          if(strlen(argv[i]) + 1 > MAX_NAME)
          {
             fprintf(stderr, "Wprowadzona nazwa pliku [%s] przekracza maksymalna dozwolona dlugosc [%d]\n",
@@ -97,6 +97,12 @@ int extract_options(int argc, char **argv, option_t *options)
             }
          }
       }
+   }
+
+   if(! was_request) // jeżeli nie wyspecyfikowano odpowiedniego trybu [c|e|a]
+   {
+      fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
+      return -1;
    }
    return 0;
 }

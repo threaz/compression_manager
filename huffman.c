@@ -132,20 +132,6 @@ pNODE remove_elem(QUEUE *que)
    return qpn->elem;
 }
 
-void print_queue(QUEUE *que)
-{
-   if(que == NULL)
-      return;
-
-   qpNODE qpn = que->first;
-   while(qpn)
-   {
-      printf((qpn->next) ? "%c -> " : "%c", qpn->elem->val);
-      qpn = qpn->next;
-   }
-   putchar('\n');
-}
-
 void label_huffman_tree_rec(pNODE root, int path_len, int label, int set)
 {
    root->label = label;
@@ -306,7 +292,7 @@ void huffman_encode(FILE *inFile, FILE *outFile)
 
    while((ch = fgetc(inFile)) != EOF)
    {
-      pn = find_char_node(ch, map); // TODO: tu jest coś nie tak
+      pn = find_char_node(ch, map);
       if(pn == NULL)
       {
          perror("nie znaleziono znaku");
@@ -317,7 +303,7 @@ void huffman_encode(FILE *inFile, FILE *outFile)
       else
          nbits = pn->label_len;
 
-      for(int i = 0; i < nbits; ++i)
+      for(unsigned int i = 0; i < nbits; ++i)
          BitFile_write_bit(CHECK_BIT(pn->label, INT_BITS-1-i), bfp);
    }
 

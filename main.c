@@ -12,12 +12,6 @@ int main(int argc, char *argv[])
    // inicjalizuje początkowe opcje
    option_t options = init_option();
 
-   if(argc <= 1)
-   {
-      fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
-      return -1;
-   }
-
    // "wyłuskuje" opcje z argv i zapisuje dane w options
    if(extract_options(argc, argv, &options) != 0)
       return -1;
