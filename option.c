@@ -3,6 +3,7 @@
 option_t init_option()
 {
    option_t newOpt;
+   newOpt.ar_name_buf[0] = '\0';
    newOpt.buf.name_pos = 0;
    newOpt.nfiles = 0;
    newOpt.action = ERROR;
@@ -99,7 +100,7 @@ int extract_options(int argc, char **argv, option_t *options)
       }
    }
 
-   if(! was_request) // jeżeli nie wyspecyfikowano odpowiedniego trybu [c|e|a]
+   if(! was_request || strlen(options->ar_name_buf) <= 0) // jeżeli nie wyspecyfikowano odpowiedniego trybu [c|e|a]
    {
       fprintf(stderr, "Niepoprawny format wywolania. Uzyj opcji -h aby uzyskac pomoc.\n");
       return -1;

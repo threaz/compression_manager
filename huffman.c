@@ -176,7 +176,6 @@ pNODE create_huffman_tree(unsigned long long *letter_cnt)
       node_tab[i] = NULL;
 
    for(j = 0; j < UCHAR_MAX+1; ++j) {
-//      printf("%llu %d\n", letter_cnt[j], j);
       if(letter_cnt[j]) // jeśli jakiś znak wystąpił przynajmniej raz
       {
          node_tab[j] = make_node((char)j);
